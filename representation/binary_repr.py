@@ -40,6 +40,20 @@ class bool_repr:
     def bin2bool(self, val : int):
         return True if val[0] == 1 else False
     
+    @classmethod
+    def size(self):
+        return 1
+    
+    ## aliases 
+    
+    @classmethod
+    def to_bin(self, n):
+        return self.bool2bin(n)
+    
+    @classmethod
+    def to_val(self, val):
+        return self.bin2bool(val)
+    
 class int_repr:
     
     def __init__(self, num_bits : int = 8):
@@ -52,6 +66,17 @@ class int_repr:
         assert len(val) == self.num_bits
         
         return bin2int(val)
+    
+    def size(self):
+        return self.num_bits
+    
+    ## aliases 
+    
+    def to_bin(self, n):
+        return self.int2bin(n)
+    
+    def to_val(self, val):
+        return self.bin2int(val)
     
 ## representação flutuante com decimal
 class real_float_dec_repr:
@@ -89,6 +114,17 @@ class real_float_dec_repr:
         
         return float(bin2int(mant_bin) * 10 ** (bin2int(exp_bin)))
     
+    def size(self):
+        return self.mant_size + self.exp_size
+    
+    ## aliases
+    
+    def to_bin(self, n):
+        return self.float2bin(n)
+    
+    def to_val(self, val):
+        return self.bin2float(val)
+    
 class real_fixed_repr:
     
     def __init__(self, real_part=4, frac_part=4):
@@ -107,19 +143,6 @@ class real_fixed_repr:
         
         self.bin_size = self.real_size + self.frac_size + 1
         
-        
-    def bin2fixed(self, val):
-        
-        sign, real, frac = val[:1], val[1:self.real_size + 1], val[self.real_size + 1:]
-        dec_real = bin2int(real)
-        dec_frac = bin2uint(frac)
-        
-        if sign[0] == 1:
-            return dec_real + float('0.' + str(dec_frac).zfill(self.frac_part))
-        else:
-            return - (dec_real + float('0.' + str(dec_frac).zfill(self.frac_part)))
-        
-
     def fixed2bin(self, n):
         
         sign = 1 if n >= 0 else 0
@@ -136,3 +159,25 @@ class real_fixed_repr:
         frac_bin = uint2bin(frac, tam=self.frac_size)
 
         return [sign] + real_bin + frac_bin
+    
+    def bin2fixed(self, val):
+        
+        sign, real, frac = val[:1], val[1:self.real_size + 1], val[self.real_size + 1:]
+        dec_real = bin2int(real)
+        dec_frac = bin2uint(frac)
+        
+        if sign[0] == 1:
+            return dec_real + float('0.' + str(dec_frac).zfill(self.frac_part))
+        else:
+            return - (dec_real + float('0.' + str(dec_frac).zfill(self.frac_part)))
+    
+    def size(self):
+        return self.bin_size
+    
+    ## aliases
+    
+    def to_bin(self, n):
+        return self.fixed2bin(n)
+    
+    def to_val(self, val):
+        return self.bin2fixed(val)
