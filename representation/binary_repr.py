@@ -1,12 +1,6 @@
 from math import log10
 import numpy as np
 
-# def custom_divmod(a, b):
-#     quotient, remainder = divmod(a, b)
-    
-#     remainder = round(remainder, 10)
-#     return quotient, remainder
-
 def int2bin(n, num_bits=8):
     if n == 0:
         return [0] * num_bits
@@ -33,50 +27,42 @@ def bin2uint(val):
 class bool_repr:
     
     @classmethod
-    def bool2bin(self, n : bool):
+    def to_bin(self, n : bool):
+        # bool2bin
+        
         return [1] if True else [0]
     
     @classmethod
-    def bin2bool(self, val : int):
+    def to_val(self, val : int):
+        # bin2bool
+        
         return True if val[0] == 1 else False
     
     @classmethod
     def size(self):
         return 1
     
-    ## aliases 
-    
-    @classmethod
-    def to_bin(self, n):
-        return self.bool2bin(n)
-    
-    @classmethod
-    def to_val(self, val):
-        return self.bin2bool(val)
     
 class int_repr:
     
     def __init__(self, num_bits : int = 8):
         self.num_bits = num_bits
     
-    def int2bin(self, n):
+    def to_bin(self, n):
+        # int2bin
+        
         return int2bin(n, num_bits=self.num_bits)
         
-    def bin2int(self, val):
+    def to_val(self, val):
+        # bin2int
+        
         assert len(val) == self.num_bits
         
         return bin2int(val)
     
     def size(self):
         return self.num_bits
-    
-    ## aliases 
-    
-    def to_bin(self, n):
-        return self.int2bin(n)
-    
-    def to_val(self, val):
-        return self.bin2int(val)
+
     
 ## representação flutuante com decimal
 class real_float_dec_repr:
@@ -101,13 +87,17 @@ class real_float_dec_repr:
     def _toMant(self, n):
         return int(str(n).replace('.', ''))
 
-    def float2bin(self, n):
+    def to_bin(self, n):
+        # float2bin
+        
         mant_bin = int2bin(self._toMant(n), num_bits=self.mant_size)
         exp_bin = int2bin(self._findExp(n), num_bits=self.exp_size)
         
         return mant_bin + exp_bin
 
-    def bin2float(self, val):
+    def to_val(self, val):
+        # bin2float
+        
         split_dot = len(val) - self.exp_size
         assert split_dot == self.mant_size
         mant_bin, exp_bin = val[:split_dot], val[split_dot:]
@@ -116,14 +106,7 @@ class real_float_dec_repr:
     
     def size(self):
         return self.mant_size + self.exp_size
-    
-    ## aliases
-    
-    def to_bin(self, n):
-        return self.float2bin(n)
-    
-    def to_val(self, val):
-        return self.bin2float(val)
+
     
 class real_fixed_repr:
     
@@ -132,18 +115,19 @@ class real_fixed_repr:
         self.frac_part = frac_part
         
         for i in range(0, 30):
-            if 2 ** i > 10 ** self.real_part:
+            if (2 ** i) > (10 ** self.real_part):
                 self.real_size = i
                 break
         
         for i in range(0, 30):
-            if 2 ** i > 10 ** self.frac_part:
+            if (2 ** i) > (10 ** self.frac_part):
                 self.frac_size = i
                 break
         
         self.bin_size = self.real_size + self.frac_size + 1
         
-    def fixed2bin(self, n):
+    def to_bin(self, n):
+        # fixed2bin
         
         sign = 1 if n >= 0 else 0
         real, frac = str(abs(n)).split('.')
@@ -160,7 +144,8 @@ class real_fixed_repr:
 
         return [sign] + real_bin + frac_bin
     
-    def bin2fixed(self, val):
+    def to_val(self, val):
+        # bin2fixed
         
         sign, real, frac = val[:1], val[1:self.real_size + 1], val[self.real_size + 1:]
         dec_real = bin2int(real)
@@ -173,11 +158,3 @@ class real_fixed_repr:
     
     def size(self):
         return self.bin_size
-    
-    ## aliases
-    
-    def to_bin(self, n):
-        return self.fixed2bin(n)
-    
-    def to_val(self, val):
-        return self.bin2fixed(val)
